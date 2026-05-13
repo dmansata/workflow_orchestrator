@@ -1,9 +1,0 @@
-Picked up JAVA_TOOL_OPTIONS: -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8
-[0.151s][warning][cds] This file is not the one used while building the shared archive file: 'C:\Users\niral\AppData\Roaming\Code\User\globalStorage\pleiades.java-extension-pack-jdk\java\latest\lib\modules', size has changed
-Method [java.lang.Class.isInterface()Z] is annotated with @IntrinsicCandidate, but no compiler intrinsic is defined for the method.
-Method [java.lang.Class.isPrimitive()Z] is annotated with @IntrinsicCandidate, but no compiler intrinsic is defined for the method.
-Method [java.lang.Class.isArray()Z] is annotated with @IntrinsicCandidate, but no compiler intrinsic is defined for the method.
-Method [java.lang.Class.getModifiers()I] is annotated with @IntrinsicCandidate, but no compiler intrinsic is defined for the method.
-[0.171s][error  ][class] Invalid layout of java.lang.Class field: modifiers type: C
-Error occurred during initialization of VM
-Invalid layout of well-known class: use -Xlog:class+load=info to see the origin of the problem class
