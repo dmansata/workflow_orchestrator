@@ -168,14 +168,6 @@ classDiagram
 
 ---
 
-## 🎬 Video Demo Script
-
-### 📽️ Scene 0: User Registration & Authentication
-**What to show:** The Auth card in the Control Center.
-**What to say:**
-> "We start by creating a brand new account. The system handles secure password hashing and stores the user in PostgreSQL. Once registered, I log in to receive a JWT token, which will be used to authorize all subsequent requests."
-
-### 📽️ Scene 1: Project Overview & Tech Stack
 
 ### 1. Infrastructure Setup
 Ensure Docker is running and start the stack:
@@ -192,7 +184,7 @@ $env:JAVA_TOOL_OPTIONS=''; $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk
 ---
 
 ## 🎥 Feature Demonstration
-Check the [Demo Video](file:///C:/Users/niral/.gemini/antigravity/brain/5f8eee64-7077-440c-9cdb-e951e166fc66/flow_feature_demo_1778636395745.webp) to see the system in action, including:
+Check the [Demo Video]https://screenrec.com/share/BoklIc4r1W to see the system in action, including:
 - **Redis Rate Limiting**
 - **Kafka Execution Logs**
 - **Notify/Delay Node Logic**
