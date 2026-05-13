@@ -1,0 +1,23 @@
+# Build artifacts
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+boot_log_*.txt
+mvn_debug.txt
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db

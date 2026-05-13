@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow | Workflow Orchestrator</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .navbar {
+            padding: 1.5rem 2rem;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        /* Status Badges */
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .badge-error { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+
+        /* Form Elements */
+        textarea, input {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            color: white;
+            font-family: monospace;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid #334155; color: var(--text); }
+        .btn-outline:hover { background: #334155; }
+
+        /* Workflow List */
+        .workflow-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .workflow-item:last-child { border-bottom: none; }
+
+        /* Logs */
+        .logs-panel {
+            background: #000;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #10b981;
+        }
+        .log-entry { margin-bottom: 0.5rem; opacity: 0.9; }
+        .log-timestamp { color: var(--text-muted); font-size: 0.75rem; }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .recording-indicator {
+            width: 12px;
+            height: 12px;
+            background: var(--error);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .step-info {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">FLOW // ENGINE</div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="recording-indicator"></div>
+            <span style="font-weight: 600; color: var(--text-muted);">AUTO-DEMO MODE</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="grid">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-title">🚀 Create New Workflow</div>
+                    <label style="color: var(--text-muted); font-size: 0.8rem;">WORKFLOW JSON CONFIG</label>
+                    <textarea id="workflowNodes" rows="8">[
+  {"id": "n1", "type": "NOTIFY", "config": {"message": "System starting...", "channel": "SLACK"}},
+  {"id": "n2", "type": "DELAY", "config": {"seconds": 3}},
+  {"id": "n3", "type": "HTTP", "config": {"url": "https://api.github.com", "method": "GET"}},
+  {"id": "n4", "type": "NOTIFY", "config": {"message": "Success!", "channel": "EMAIL"}}
+]</textarea>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="createWorkflow()">Initialize Workflow</button>
+                        <button class="btn btn-outline" onclick="triggerWebhook()">Test Webhook</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📈 Active Workflows</div>
+                    <div id="workflowList">
+                        <div class="workflow-item">
+                            <div>
+                                <div style="font-weight: 600;">MainOrchestrator</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">ID: 1 | Secret: my-super-secret-123</div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <span class="badge badge-success">Published</span>
+                                <button class="btn btn-outline" style="padding: 0.4rem 0.8rem;" onclick="startWorkflow(1)">Start</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-title">🖥️ Live Execution Logs</div>
+                    <div class="logs-panel" id="logPanel">
+                        <div class="log-entry">> Initializing Flow Engine...</div>
+                        <div class="log-entry">> Kafka Cluster Status: ONLINE</div>
+                        <div class="log-entry">> Redis Rate Limiter: READY</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⏱️ Rate Limit Status</div>
+                    <div style="font-size: 2rem; font-weight: 800; text-align: center;" id="rateCount">0/10</div>
+                    <div style="color: var(--text-muted); text-align: center; font-size: 0.8rem;">Requests per minute</div>
+                    <div style="height: 4px; background: #334155; margin-top: 1rem; border-radius: 2px; overflow: hidden;">
+                        <div id="rateProgress" style="height: 100%; background: var(--primary); width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="stepInfo" class="step-info">DEMO: INITIALIZING...</div>
+
+    <script>
+        const API_BASE = 'http://localhost:8085/api';
+        const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJEYXJzaGl0IiwidXNlcklkIjoxLCJpYXQiOjE3NzgyMzI2MDMsImV4cCI6MTc3ODMxOTAwM30._BMQ2Xm7QAQ_uv27_L1Wpe6jrEVQnMUojs1LOOfSlGs';
+
+        function showStep(text) {
+            const el = document.getElementById('stepInfo');
+            el.innerText = text;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        function addLog(msg, type = 'info') {
+            const panel = document.getElementById('logPanel');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span class="log-timestamp">[${time}]</span> ${msg}`;
+            if (type === 'error') entry.style.color = '#ef4444';
+            if (type === 'success') entry.style.color = '#10b981';
+            panel.appendChild(entry);
+            panel.scrollTop = panel.scrollHeight;
+        }
+
+        async function createWorkflow() {
+            showStep('PHASE 1: CREATING WORKFLOW');
+            addLog("POST /api/workflows ...", "info");
+            // Simulate creation for demo
+            setTimeout(() => {
+                addLog("✓ Workflow #1 Created: MainOrchestrator", "success");
+            }, 800);
+        }
+
+        async function startWorkflow(id) {
+            showStep('PHASE 2: ASYNC EXECUTION (KAFKA)');
+            addLog(`Triggering execution for Workflow #${id}...`, "info");
+            addLog(`> Kafka Event Published: workflow-execution-events`, "success");
+            
+            // Simulate steps
+            setTimeout(() => addLog("🔔 Node n1: Slack Notify - 'System starting...'", "success"), 1000);
+            setTimeout(() => addLog("⏳ Node n2: Delay - Waiting 3 seconds...", "info"), 2000);
+            setTimeout(() => addLog("🌐 Node n3: HTTP GET - api.github.com", "success"), 5000);
+            setTimeout(() => addLog("📧 Node n4: Email Notify - 'Success!'", "success"), 6000);
+            setTimeout(() => addLog("✅ Execution COMPLETED", "success"), 7000);
+        }
+
+        async function triggerWebhook() {
+            showStep('PHASE 3: WEBHOOK TRIGGER (SECRET KEY)');
+            addLog("External Webhook Received: /api/webhooks/1?secret=...", "info");
+            addLog("✓ Webhook Secret Validated", "success");
+            startWorkflow(1);
+        }
+
+        // Simulate Rate Limiting
+        let rateCount = 0;
+        setInterval(() => {
+            if (rateCount < 10) {
+                rateCount++;
+                document.getElementById('rateCount').innerText = `${rateCount}/10`;
+                document.getElementById('rateProgress').style.width = `${rateCount * 10}%`;
+                addLog(`✓ API Call Rate Check: OK (${rateCount}/10)`, "info");
+            } else if (rateCount === 10) {
+                rateCount++;
+                addLog(`⚠️ Rate Limit Exceeded: HTTP 429`, "error");
+                document.getElementById('rateCount').style.color = '#ef4444';
+            }
+        }, 15000);
+    </script>
+</body>
+</html>
